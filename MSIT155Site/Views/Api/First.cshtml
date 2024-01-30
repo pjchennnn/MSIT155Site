@@ -1,0 +1,58 @@
+﻿@{
+    ViewData["Title"] = "First";
+}
+
+@section Styles
+{
+    <style>
+
+        #content {
+            width: 200px;
+            height: 100px;
+            border: solid black 1px;
+        }
+    </style>
+}
+
+<h1>First</h1>
+<input type="button" id="start" class="btn btn-primary mb-3" value="start" />
+<input type="button" id="stop" class="btn btn-primary mb-3" value="stop" />
+<div id="content"></div>
+<img id="img" src="~/images/loading.png" style="display:none; width:50px; height:50px;" />
+
+@section Scripts
+{
+    <script>
+        const start = document.querySelector('#start')
+        const stop = document.querySelector('#stop')
+        const content = document.querySelector('#content')
+        const img = document.querySelector('#img')
+        let abortController
+
+        stop.addEventListener('click', () => {
+            if (abortController) {
+                abortController.abort()
+            }
+        })
+
+
+        start.addEventListener('click', async () => {
+            try {
+                btnStart.setAttribute('disabled', 'disabled')
+                btnStart.value = "執行中..."
+                const response = await fetch('@Url.Content("~/Api/Index")')
+                if (!response.ok) {
+                    throw new Error(`${response.status}`)
+                }
+                const data = await response.text()
+                content.innerHTML = data
+            }
+            catch(error) {
+                conten.innerHTML = error.message
+            }
+            finally {
+
+            }
+        })
+    </script>
+}

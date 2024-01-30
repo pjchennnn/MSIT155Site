@@ -1,0 +1,57 @@
+﻿@{
+    ViewData["Title"] = "trav";
+}
+
+@section Styles
+{
+    <style>
+        #cards {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: stretch;
+            align-content: stretch;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+            #cards > .card {
+                margin: 20px;
+            }
+    </style>
+}
+
+
+<h1>homework1_trav</h1>
+<div id="cards"></div>
+
+
+
+@section Scripts
+{
+    <script src="~/js/travel.js"></script>
+    <script>
+        const cards = document.getElementById("cards")
+        let cardshtml = ``
+        for (var e of spots.CommonFormat.Section) {
+            let Img = Array.isArray(e.file.img) ? e.file.img[0].text : e.file.img.text
+            let body = e.xbody.substring(0, 50)
+            cardshtml += `
+                                <div class="card" style="width: 18rem;">
+                                            <img src="${Img}" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                        <h5 class="card-title">${e.stitle}</h5>
+                                                <p class="card-text">${body}</p>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">${e.address}</li>
+                                        <li class="list-group-item">${e.xpostDate}</li>
+                                        <li class="list-group-item">${e.MEMO_TIME}</li>
+                            </ul>
+                        </div>
+                    `
+        }
+        cards.innerHTML = cardshtml
+    </script>
+}
