@@ -1,0 +1,69 @@
+﻿
+@{
+    ViewData["Title"] = "Address";
+}
+
+<h1>Address</h1>
+<select id="selectCity"></select>
+<select id="selectDistrict"></select>
+<select id="selectRoad"></select>
+
+
+@section Scripts
+{
+    <script>
+        const selectCity = document.querySelector('#selectCity');
+        const selectDistrict = document.querySelector('#selectDistrict');
+        const selectRoad = document.querySelector('#selectRoad');
+
+
+
+        (async () => {
+            const response = await fetch('@Url.Content("~/Api/Cities")')
+            if (!response.ok) {
+                throw new Error(`${response.status}`)
+            }
+            const data = await response.json()
+            const cities = data.map(city => `<option value = '${city}'>${city}</option>`)
+            selectCity.innerHTML = cities.join("")
+            loadDistrict()
+        })();
+
+
+        const loadDistrict = async () => {
+            const city = selectCity[selectCity.selectedIndex].value
+            
+            const response = await fetch(`@Url.Content("~/Api/District")?city=${city}`)
+            if (!response.ok) {
+                throw new Error(`${response.status}`)
+            }
+            const data = await response.json()
+            
+            const districts = data.map(district => `<option value = '${district}'>${district}</option>`)
+            selectDistrict.innerHTML = districts.join("")
+        }
+
+        const loadRoad = async () => {
+            const district = selectDistrict[selectDistrict.selectedIndex].value
+            
+            const response = await fetch(`@Url.Content("~/Api/Road")?district=${district}`)
+            if (!response.ok) {
+                throw new Error(`${response.status}`)
+            }
+            const data = await response.json()
+            
+            const roads = data.map(road => `<option value = '${road}'>${road}</option>`)
+            selectRoad.innerHTML = roads.join("")
+        }
+
+
+
+
+
+        selectCity.addEventListener('change', loadDistrict)
+        selectDistrict.addEventListener('change',loadRoad)
+
+
+
+    </script>
+}

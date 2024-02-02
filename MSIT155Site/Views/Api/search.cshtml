@@ -1,0 +1,157 @@
+﻿
+@{
+    ViewData["Title"] = "search";
+}
+
+<h1>search</h1>
+<div class="d-flex" style="justify-content:space-between">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination" id="paginatoin"></ul>
+    </nav>
+    <div id="div">
+        <input type="text" class="form-control mb-3" id="autocomplete" />
+        <div class="list-group" id="listgroup" style="position:fixed; z-index: 1000;">
+            
+        </div>
+    </div>
+</div>
+<div class="row row-cols-1 row-cols-md-3 g-4" id="cards"></div>
+
+@section Scripts{
+    <script>
+        const div = document.getElementById("div");
+        const searchbar = document.getElementById("autocomplete");
+        const listgroup = document.getElementById("listgroup");
+        const pagination = document.getElementById("paginatoin");
+        const cards = document.getElementById("cards");
+
+        const searchData = {
+            "categoryId": 0,
+            "keyword" : "",
+            "page" : 1,
+            "pageSize" : 30,
+            "sortSize" : "asc",
+            "sortBy" : ""
+        }
+
+        const loadCards = async() => {
+            const response = await fetch('@Url.Content("~/Api/Spots")', {
+                "method": "POST",
+                "body": JSON.stringify(searchData),
+                "headers": { "Content-Type": "application/json" }
+            })
+            const spots = await response.json();
+            const spotsList = spots.spotResult;
+            let cardshtml = ``;
+            for (var spot of spotsList) {
+                cardshtml += `
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src="${spot.spotImage}" class="card-img-top" alt="${spot.spotTitle}">
+                            <div class="card-body">
+                                <h4 class="card-title">${spot.spotTitle}</h4>
+                                <p class="card-text">${spot.spotDescription.substring(0,50)}</p>
+                            </div>
+                            <div class="card-footer">
+                                <small class="text-body-secondary">${spot.address}</small>
+                            </div>
+                        </div>
+                    </div>
+                `
+            }
+            cards.innerHTML = cardshtml
+
+            let paginationhtml = ``;
+            for (let i = 1; i <= spots.totalPages; i++) {
+                paginationhtml += `<li class="page-item"><a class="page-link" onclick="changepage(${i})" href="#">${i}</a></li>`;
+            }
+            pagination.innerHTML = paginationhtml;
+        }
+        loadCards()
+
+
+        function changepage(page) {
+            searchData.page = page;
+            loadCards();
+        }
+        function searching(keyword) {
+            searchData.keyword = keyword
+            loadCards();
+            searchbar.value = keyword
+            listgroup.innerHTML = ""
+        }
+        async function loadSearchingList(keyword) {
+            const response = await fetch(`@Url.Content("~/Api/spotTitleSearch")?keyword=${keyword}`)
+            const titles = await response.json()
+            let listhtml = ``
+            if (titles != null) {
+                for (var title of titles) {
+                    listhtml += `<a href="#" class="list-group-item list-group-item-action" onclick="searching('${title}')">${title}</a>`
+                    listgroup.innerHTML = ""
+                    listgroup.innerHTML = listhtml
+                }
+            }
+            else { listgroup.innerHTML = "" }
+        }
+
+        div.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault()
+                if (e.target.nextElementSibling.querySelector('.active') === null) {//如果目前沒有任何active
+                    e.target.nextElementSibling.firstElementChild.classList.add("active")//把第一個active
+                    searchbar.value = e.target.nextElementSibling.querySelector('.active').innerText//searchbar裡的字更新
+                }
+                else {//若已有active
+                    if (e.target.nextElementSibling.querySelector('.active').nextElementSibling !== null) {//若還沒到底
+                        e.target.nextElementSibling.querySelector('.active').nextElementSibling.classList.add("active")//下一位active
+                        e.target.nextElementSibling.querySelector('.active').classList.remove("active")//acitve中的第一位取消active
+                        searchbar.value = e.target.nextElementSibling.querySelector('.active').innerText//searchbar裡的字更新
+                    }
+                    else {//若已經到底
+                        e.target.nextElementSibling.querySelector('.active').classList.remove("active")//acitve移除
+                        e.target.nextElementSibling.firstElementChild.classList.add("active")//第一位active
+                        searchbar.value = e.target.nextElementSibling.querySelector('.active').innerText//searchbar裡的字更新
+                    }
+                }
+            }
+            if (e.key === 'ArrowUp') {
+                e.preventDefault()
+                if (e.target.nextElementSibling.querySelector('.active') === null) {
+                    e.target.nextElementSibling.lastElementChild.classList.add("active")
+                    searchbar.value = e.target.nextElementSibling.querySelector('.active').innerText
+                }
+                else {
+                    if (e.target.nextElementSibling.querySelector('.active').previousElementSibling !== null) {
+                        e.target.nextElementSibling.querySelector('.active').previousElementSibling.classList.add("active")
+                    const activelist = e.target.nextElementSibling.querySelectorAll('.active')
+                    activelist[activelist.length - 1].classList.remove("active")
+                    searchbar.value = e.target.nextElementSibling.querySelector('.active').innerText
+                    }
+                    else {
+                        e.target.nextElementSibling.querySelector('.active').classList.remove("active")
+                        e.target.nextElementSibling.lastElementChild.classList.add("active")
+                        searchbar.value = e.target.nextElementSibling.querySelector('.active').innerText
+                    }
+                }
+            }
+        })
+
+        searchbar.addEventListener('input', async (e) => {
+            await loadSearchingList(e.target.value)
+        })
+        searchbar.addEventListener('focus', async (e) => {
+            await loadSearchingList(e.target.value)
+        })
+        searchbar.addEventListener('blur', () => {
+            listgroup.innerHTML = ""
+        })
+        searchbar.addEventListener('keydown', async(e) => {
+            if (e.key === 'Enter') {
+                searchData.keyword = e.target.value
+                loadCards()
+                listgroup.innerHTML = ""
+                searchbar.blur()
+            }
+        })
+    </script>
+}

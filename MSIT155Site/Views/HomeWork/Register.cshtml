@@ -11,17 +11,22 @@
         <form id="userForm">
             <div class="mb-3">
                 <label for="userName" class="form-label">姓名：</label>
-                <input type="text" class="form-control" id="userName" name="Name">
+                <input type="text" class="form-control" id="Name" name="Name">
                 <div class="alert alert-warning" id="divWarning"></div>
             </div>
             <div class="mb-3">
                 <label for="UserEmail" class="form-label">電子郵件：</label>
-                <input type="email" class="form-control" id="UserEmail" name="Email">
+                <input type="email" class="form-control" id="Email" name="Email">
             </div>
             <div class="mb-3">
                 <label for="userAge" class="form-label">年紀：</label>
-                <input type="number" class="form-control" id="userAge" name="Age">
+                <input type="number" class="form-control" id="Age" name="Age">
             </div>
+            <div class="mb-3">
+                <label for="userAge" class="form-label">頭像:</label>
+                <input type="file" class="form-control" id="Avatar" name="Avatar">
+            </div>
+            
 
             <button id="button1" type="submit" class="btn btn-primary">送出</button>
         </form>
@@ -34,10 +39,14 @@
 
 @section Scripts {
     <script>
-        const userName = document.querySelector('#userName')
+        const userName = document.querySelector('#Name')
         const divWarning = document.querySelector('#divWarning')
-        const userEmail = document.querySelector('#UserEmail')
-        const userAge = document.querySelector('#userAge')
+        const userEmail = document.querySelector('#Email')
+        const userAge = document.querySelector('#Age')
+        const userAvatar = document.querySelector('#Avatar')
+        const btnSubmit = document.querySelector('#button1')
+        const info = document.querySelector('#div1')
+        const userForm = document.querySelector('#userForm')
 
         userName.addEventListener('focusout', async () => {
             const name = userName.value;
@@ -55,6 +64,22 @@
                 console.error('Error:', error);
             }
         });
+
+        btnSubmit.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(userForm)
+            for (const pair of formData.entries()) {
+                console.log(`${pair[0]}`)
+                console.log(`${pair[1]}`)
+            }
+
+            const response = await fetch('@Url.Content("~/Api/Register")', {
+                method:"POST",
+                body:formData
+            })
+            const data = await response.text();
+            info.innerHTML = data
+        })
 
     </script>
 }

@@ -8,7 +8,7 @@
 <div class="row">
     <div class="col-3"></div>
     <div class="col-6">
-        <form id="userForm">
+        <form id="userForm" style="border:solid 1px black;">
             <div class="mb-3">
                 <label for="userName" class="form-label">姓名：</label>
                 <input type="text" class="form-control" id="userName" name="Name">
@@ -40,6 +40,13 @@
             console.log(data);
 
         })();
+
+
+        const userForm = document.querySelector('#userForm')
+        userForm.addEventListener('click', (e) => {
+            console.log(e.target.value)
+        })
+
 
     </script>
 }

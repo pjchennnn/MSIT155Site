@@ -1,0 +1,24 @@
+﻿
+@{
+    ViewData["Title"] = "Avatar";
+}
+
+<h1>Avatar</h1>
+
+<img id="img"/>
+
+@section Scripts
+{
+    <script>
+        const img = document.querySelector('#img');
+        (async() => {
+            const url = ('@Url.Content("~/Api/Avatar/1")')
+            const response = await fetch(url)
+            if (!response.ok) {
+                console.log(`有錯誤:${response.status}`)
+            }
+            const image = await response.blob()
+            img.src = URL.createObjectURL(image)
+        })();
+    </script>
+}
